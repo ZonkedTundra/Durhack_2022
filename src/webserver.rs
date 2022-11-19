@@ -4,6 +4,7 @@ use std::io::Error;
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 use poem::web::{Html, Redirect};
+use crate::{Config, CONFIG};
 
 const WEBPAGE_PATH: &str = "index.html";
 
@@ -16,34 +17,38 @@ lazy_static!{
 #[handler]
 fn serve() -> impl IntoResponse {
     let webpage_arc = WEBPAGE.clone();
-    let x = match webpage_arc.lock() {
+    let webpage = match webpage_arc.lock() {
         Ok(content) => content,
         Err(content) => content.into_inner()
     }.to_owned();
-    Html(x)
+    Html(webpage)
 }
 
 #[handler]
 fn reload() -> Redirect {
     let webpage_arc = WEBPAGE.clone();
-    let mut x = match webpage_arc.lock() {
+    let mut webpage = match webpage_arc.lock() {
         Ok(content) => content,
         Err(content) => content.into_inner()
     };
-    *x = fs::read_to_string(WEBPAGE_PATH).expect("Failed to read file.");
+    *webpage = fs::read_to_string(WEBPAGE_PATH).expect("Failed to read file.");
 
     Redirect::see_other("/")
 }
 
-pub async fn init() {
-    start().await.expect("TODO: panic message");
+pub async fn init(conf_arc: Arc<Mutex<Config>>) {
+    let config = match conf_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner()
+    };
+    start(&config.webserver_address).await.expect("TODO: panic message");
 }
 
-async fn start() -> Result<(), Error> {
+async fn start(address: &String) -> Result<(), Error> {
     let app = Route::new()
         .at("/reload", get(reload))
         .at("*", get(serve));
-    Server::new(TcpListener::bind("127.0.0.1:3000"))
+    Server::new(TcpListener::bind(address.to_owned()))
         .name("hello-world")
         .run(app)
         .await

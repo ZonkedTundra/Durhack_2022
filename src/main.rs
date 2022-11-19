@@ -11,14 +11,16 @@ use std::sync::{Arc, Mutex};
 
 /// The config format from config.toml
 #[derive(Deserialize)]
-struct Config {
-    mongo_connection_string: String
+pub struct Config {
+    mongo_connection_string: String,
+    webserver_address: String
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             mongo_connection_string: "".to_owned(),
+            webserver_address: "127.0.0.1:3000".to_owned()
         }
     }
 }
@@ -60,6 +62,7 @@ async fn main() {
     };
     
     *global_config = config;
+    drop(global_config);
 
-    webserver::init().await;
+    webserver::init(CONFIG.clone()).await;
 }
