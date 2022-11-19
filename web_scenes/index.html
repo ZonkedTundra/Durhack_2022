@@ -8,17 +8,131 @@
     <title>Team Compiling</title>
     <style>
         body {
-          background-color: black;
-          color: white
+            background-color: black;
+            color: white;
+            text-align: center;
         }
-      </style>
+
+        input {
+            border: 3px solid rgb(0, 174, 255);
+            height: 40px;
+            width: 220px;
+            background-color: black;
+            color: white;
+        }
+
+        p {
+            font-size: x-large;
+        }
+    </style>
+
+    <script>
+        let App = undefined;
+        let scene = 'LoginScene';
+
+        const changeScene = new CustomEvent("change-scene");
+        document.addEventListener('change-scene', () => {
+            while (App.firstChild)
+                App.removeChild(App.firstChild);
+
+            const newScene = document.getElementById(scene).content.cloneNode(true);
+            App.appendChild(newScene);
+
+            sceneInits[scene](App);
+        });
+
+        const sceneInits = {
+            LoginScene: App => {
+                const SubmitButton = App.getElementsByClassName('submit')[0];
+                
+                
+
+                SubmitButton.addEventListener('click', submit);
+            },
+            AIScene: App => {
+                function submit() {
+                    const alpha = App.getElementById("userInput-alpha").value;
+                    const beta = App.getElementById("userInput-beta").value;
+                    const colour = App.getElementById("userInput-colour").value;
+                    const name = App.getElementById("userInput-name").value;
+
+                    const package = {
+                        type: 'newAI',
+                        token: token,
+                        data: {
+                            alpha: alpha,
+                            beta: beta,
+                            colour: colour,
+                            name: name
+                        }
+                    }   
+
+                    // Validate some values
+
+                     ws.send(JSON.stringify({ package }))
+                }
+            }
+        }
+
+        const ws = new WebSocket(`ws://localhost:8080/`);
+        ws.onmessage = event => {
+            const package = JSON.parse(event.data);
+            if (package.type === "loginresponce" ){
+                if (package.data.success){
+                    scene = "AIScene"
+                    document.dispatchEvent(changeScene);
+                } else{
+                    //error message
+                    // have a hidden class in css template and remove now
+                }
+
+            }
+            document.dispatchEvent(package.type);
+            package.type
+            package.data.alpha
+        }
+        // const package = JSON.parse(data)
+
+        document.addEventListener('DOMContentLoaded', function() {
+            App = document.getElementById('App');
+            document.dispatchEvent(changeScene);
+        });
+        
+    </script>
 </head>
 
 <body>
-    <p>this is a test</p>
-    <form>
-        enter here
-    </form>
+    <div id="App"></div>
+    <template id="LoginScene">
+        <form>
+            <p>Please enter your token:</p>
+            <input type="text" placeholder="Token" id="userInput-token">
+        </form>
+        <br>
+        <button class="submit">Submit</button>
+
+        <script>
+            // let token = document.getElementById("userInput-token").value;
+        </script>
+    </template>
+
+    <template id="AIScene">
+        <form>
+            <p>Customise your AI:</p>
+            <input type="number" placeholder="Alpha" id="userInput-alpha">
+            <br>
+            <br>
+            <input type="number" placeholder="Beta" id="userInput-beta">
+            <br>
+            <br>
+            <input type="color" placeholder="AI Colour" id="userInput-colour">
+            <br>
+            <br>
+            <input type="text" placeholder="AI's Name" id="userInput-name">
+        </form>
+        <br>
+        <button onclick="returnText()">Submit</button>
+    </template>
 </body>
 
 </html>
