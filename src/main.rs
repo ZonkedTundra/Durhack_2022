@@ -1,5 +1,6 @@
 mod database;
 mod simulation;
+mod webserver;
 
 use serde_derive::Deserialize;
 use std::fs;
@@ -36,16 +37,19 @@ lazy_static!{
     static ref STATE: Arc<Mutex<State>> = Arc::new(Mutex::new(State::default()));
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config_filename = "config.toml";
     
     let Ok(config_content) = fs::read_to_string(config_filename) else {
         println!("'{config_filename}' configuration file not found!");
+        return ();
         exit(1);
     };
     
     let Ok(config) = toml::from_str::<Config>(&config_content) else {
         println!("'{config_filename}' configuration is not valid!");
+        return ();
         exit(1);
     };
     
@@ -56,6 +60,6 @@ fn main() {
     };
     
     *global_config = config;
-    
-    println!("Hello, world!");
+
+    webserver::init().await;
 }
