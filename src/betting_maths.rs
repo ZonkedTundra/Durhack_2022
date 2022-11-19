@@ -1,26 +1,26 @@
 use lazy_static::lazy_static;
 use probability_to_friendly_string::FriendlyProbability;
 extern crate lazy_static;
-
+use std::sync::{Arc, Mutex};
 //let numOfHorses = //
 
 /// horse struct
 
-struct horse
+struct Horse
 {
     name : String,
     colour : String,
-    totalBetsValue : int64,
+    totalBetsValue : i64,
     decimalOdds: f64,
     fractionalOdds: String,
 }
 
 lazy_static!{
-    //array of horses
-    static ref HORSES: Arc<Mutex<Vec<horse>>> = Arc::new(Mutex::new(Vec::new()))
+    //vector of horses
+    static ref HORSES: Arc<Mutex<Vec<Horse>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
-fn add_horse(name: String, colour: String, totalBetsValue: int64, decimalOdds: f64, fractionalOdds: String) {
+fn add_horse(name: String, colour: String, totalBetsValue: i64, decimalOdds: f64, fractionalOdds: String) {
     let horses_arc = HORSES.clone();
     let mut horses = match horses_arc.lock() {
         Ok(content) => content,
@@ -40,17 +40,21 @@ fn clear_horses() {
 
 /// user struct
 
-struct user
+struct User
 {
-    name : string,
-    numOfBets : int64,
+    name : String,
+    numOfBets : i64,
     horsesBetOn : array : [string; numOfHorses],
     valueOfEachBet : array : [int64; numOfHorses],
     balance : int64,
 }
 
-///array of users
-let users array: [struct; numOfHorses] = [user{}, numOfHorses]
+//vector of users
+
+lazy_static!{
+    //array of horses
+    static ref USERS: Arc<Mutex<Vec<User>>> = Arc::new(Mutex::new(Vec::new()));
+}
 
 
 /// function to take in total value of bets
@@ -58,10 +62,11 @@ let users array: [struct; numOfHorses] = [user{}, numOfHorses]
 fn TakeTotalValue()
 {
 
-    for i in horses  // each horse
+    for i in HORSES  // each horse
     {
-        /// add total bets on horse to new var
-        let totalForAll = totalForAll + horses[horse.totalBetsValue];
+        // add total bets on horse to new var
+        let totalForAll = totalForAll + HORSES[Horse.totalBetsValue];
+        
     }
     
 
@@ -91,12 +96,12 @@ fn TakeCut()
 fn CalcOdds()
 {
 
-    for i in horses//each horse
+    for i in HORSES//each horse
     {
-        horses[horse.decimalOdds[i]] = (availablePrize - horses[horse.totalBetsValue]) / horses[horse.totalBetsValue.];
-        horses[horse.decimalOdds[i]] = math::round::floor(horses[horse.decimalOdds[i]],2);
+        HORSES[Horse.decimalOdds[i]] = (availablePrize - HORSES[Horse.totalBetsValue]) / HORSES[Horse.totalBetsValue];
+        HORSES[Horse.decimalOdds[i]] = math::round::floor(HORSES[Horse.decimalOdds[i]],2);
 
-        horses[horse.fractionalOdds[i]] = horses[horse.decimalOdds[i].friendly_string()]
+        HORSES[Horse.fractionalOdds[i]] = HORSES[Horse.decimalOdds[i].friendly_string()]
     }
 
         
@@ -112,15 +117,15 @@ fn CalcOdds()
 fn payouts()
 {
 
-    for i in users//each user
+    for i in USERS//each user
     {
-        for j in user[user.horsesBetOn] //each horse bet on 
+        for j in USERS[User.horsesBetOn] //each horse bet on 
         {
-            if users[user.horsesBetOn[j]] == winner
+            if USERS[User.horsesBetOn[j]] == winner
             {
-                moneyPrize = (users[user.valueOfEachBet[j]] * horses[winner.decimalOdds]) + users[user.valueOfEachBet[j]];
+                moneyPrize = (USERS[User.valueOfEachBet[j]] * HORSES[winner.decimalOdds]) + USERS[User.valueOfEachBet[j]];
 
-                users[user.balance] = users[user.balance] + moneyPrize
+                USERS[User.balance] = USERS[User.balance] + moneyPrize
             }
 
             
