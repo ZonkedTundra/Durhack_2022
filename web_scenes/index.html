@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Compiling</title>
+    <title>Compiling...</title>
     <style>
         body {
             background-color: black;
@@ -13,7 +13,7 @@
             text-align: center;
         }
 
-        input {
+        .userprofiling {
             border: 3px solid rgb(0, 174, 255);
             height: 40px;
             width: 220px;
@@ -28,7 +28,7 @@
 
     <script>
         let App = undefined;
-        let scene = 'LoginScene';
+        let scene = 'AIScene';
 
         const changeScene = new CustomEvent("change-scene");
         document.addEventListener('change-scene', () => {
@@ -43,33 +43,66 @@
 
         const sceneInits = {
             LoginScene: App => {
-                const SubmitButton = App.getElementsByClassName('submit')[0];
-                
-                
+                function submit() {
+                    const token = App.getElementsByClassName("userInput-token")[0].value;
+                    SubmitButton.removeEventListener('click', submit);
+                    const package = {
+                        type: 'NewUser',
+                        token: token,
+                        data: {}
+                    }
+                    ws.send(JSON.stringify({ package }))
+                }
 
+                const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
             },
             AIScene: App => {
                 function submit() {
-                    const alpha = App.getElementById("userInput-alpha").value;
-                    const beta = App.getElementById("userInput-beta").value;
-                    const colour = App.getElementById("userInput-colour").value;
-                    const name = App.getElementById("userInput-name").value;
-
-                    const package = {
-                        type: 'newAI',
-                        token: token,
-                        data: {
-                            alpha: alpha,
-                            beta: beta,
-                            colour: colour,
-                            name: name
+                    const alpha = App.getElementsByClassName("userInput-alpha")[0].value;
+                    const beta = App.getElementsByClassName("userInput-beta")[0].value;
+                    const colour = App.getElementsByClassName("userInput-colour")[0].value;
+                    const name = App.getElementsByClassName("userInput-name")[0].value;
+                    if (alpha < 0 || alpha > 1) {
+                        alert("your alpha needs to be between 0 and 1")
+                    } else {
+                        if (beta < 0 || beta > 1) {
+                            alert("your beta needs to be between 0 and 1")
+                        } else {
+                            SubmitButton.removeEventListener('click', submit);
+                            const package = {
+                                type: 'newAI',
+                                data: {
+                                    alpha: alpha,
+                                    beta: beta,
+                                    colour: colour,
+                                    name: name
+                                }
+                            }
+                            ws.send(JSON.stringify({ package }))
                         }
-                    }   
+                    }
+                }
 
-                    // Validate some values
-
-                     ws.send(JSON.stringify({ package }))
+                const SubmitButton = App.getElementsByClassName('submit')[0];
+                SubmitButton.addEventListener('click', submit);
+            },
+            BettingScene: App => {
+                const bet = App.getElementsByClassName("userInput-betting")[0].value;
+                const horsename = App.getElementsByClassName("horse-names")[0].value;
+                if (bet > package.data.balance) {
+                    alert("you have insufficient funds")
+                }else{
+                    SubmitButton.removeEventListener('click', submit);
+                            const package = {
+                                type: 'bettinginfo',
+                                data: {
+                                    bet: bet,
+                                    horsename: horsename
+                                }
+                            }
+                            ws.send(JSON.stringify({ package }))
+                            alert("pushed")
                 }
             }
         }
@@ -77,27 +110,56 @@
         const ws = new WebSocket(`ws://localhost:8080/`);
         ws.onmessage = event => {
             const package = JSON.parse(event.data);
-            if (package.type === "loginresponce" ){
-                if (package.data.success){
+            if (package.type === "loginresponse") {
+                // will receive type, data(success(boolean))
+                if (package.data.success) {
                     scene = "AIScene"
                     document.dispatchEvent(changeScene);
-                } else{
-                    //error message
+                } else {
+                    //error message token is wrong
+                    //allow the submit button to be used again
                     // have a hidden class in css template and remove now
                 }
-
             }
+            if (package.type === "AIresponse") {
+                //will receive type, data(balance(number), horsename(list), success(boolean))
+                if (package.data.success) {
+                    scene = "BettingScene"
+                    document.dispatchEvent(changeScene);
+                    x = document.getElementsByClassName("horse-name")
+                    let htmlString = ""
+                    for (let i = 0; i < package.data.horseName; i++) {
+                        htmlString += `<option value=${package.data.horseName[i]}>${package.data.horseName[i]}</option>`
+                    }
+                    x.innerHTML = htmlString
+                } else {
+                    //error message ai is wrong
+                    //allow the submit button to be used again
+                    // have a hidden class in css template and remove now
+                }
+            }
+            if (package.type === "bettingupdate") {
+                scene = "bettingScene"
+                document.dispatchEvent(changeScene);
+
+            } else {
+                //error message betting is wrong
+                //allow the submit button to be used again
+                // have a hidden class in css template and remove now
+            }
+
             document.dispatchEvent(package.type);
             package.type
             package.data.alpha
         }
+
         // const package = JSON.parse(data)
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             App = document.getElementById('App');
             document.dispatchEvent(changeScene);
         });
-        
+
     </script>
 </head>
 
@@ -106,7 +168,7 @@
     <template id="LoginScene">
         <form>
             <p>Please enter your token:</p>
-            <input type="text" placeholder="Token" id="userInput-token">
+            <input type="text" placeholder="Token" class="userInput-token">
         </form>
         <br>
         <button class="submit">Submit</button>
@@ -119,20 +181,31 @@
     <template id="AIScene">
         <form>
             <p>Customise your AI:</p>
-            <input type="number" placeholder="Alpha" id="userInput-alpha">
+            <input type="number" placeholder="Alpha" class="userInput-alpha userprofiling">
             <br>
             <br>
-            <input type="number" placeholder="Beta" id="userInput-beta">
+            <input type="number" placeholder="Beta" class="userInput-beta userprofiling">
             <br>
             <br>
-            <input type="color" placeholder="AI Colour" id="userInput-colour">
+            <input type="color" placeholder="AI Colour" class="userInput-colour userprofiling">
             <br>
             <br>
-            <input type="text" placeholder="AI's Name" id="userInput-name">
+            <input type="text" placeholder="AI's Name" class="userInput-name userprofiling">
         </form>
         <br>
-        <button onclick="returnText()">Submit</button>
+        <button class="submit">Submit</button>
     </template>
 </body>
+
+<template id="BettingScene">
+    <p>Choose Your horse:</p>
+    <br>
+    <select name="horse-names" class="horse-names">
+    </select>
+    <br>
+    <input type="number" placeholder="Betting amount" class="userInput-betting userprofiling">
+    <br>
+    <button class="submit">Submit</button>
+</template>
 
 </html>
