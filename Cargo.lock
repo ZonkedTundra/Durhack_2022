@@ -1393,8 +1393,12 @@ name = "durhack_2022"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "lazy_static",
  "mongodb",
  "poem",
+ "serde",
+ "serde_derive",
+ "toml",
 ]
 
 [[package]]

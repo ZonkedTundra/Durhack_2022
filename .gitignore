@@ -1,3 +1,9 @@
+# Cargo
 /target
+
+# Private files
 *.pem
+config.toml
+
+# IDEs
 /.idea/
