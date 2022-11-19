@@ -28,7 +28,7 @@
 
     <script>
         let App = undefined;
-        let scene = 'AIScene';
+        let scene = 'BettingScene';
 
         const changeScene = new CustomEvent("change-scene");
         document.addEventListener('change-scene', () => {
@@ -47,9 +47,10 @@
                     const token = App.getElementsByClassName("userInput-token")[0].value;
                     SubmitButton.removeEventListener('click', submit);
                     const package = {
-                        type: 'NewUser',
-                        token: token,
-                        data: {}
+                        type: 'login',
+                        data: {
+                            token:token
+                        }
                     }
                     ws.send(JSON.stringify({ package }))
                 }
@@ -60,21 +61,21 @@
             AIScene: App => {
                 function submit() {
                     const alpha = App.getElementsByClassName("userInput-alpha")[0].value;
-                    const beta = App.getElementsByClassName("userInput-beta")[0].value;
+                    const gamma = App.getElementsByClassName("userInput-gamma")[0].value;
                     const colour = App.getElementsByClassName("userInput-colour")[0].value;
                     const name = App.getElementsByClassName("userInput-name")[0].value;
                     if (alpha < 0 || alpha > 1) {
                         alert("your alpha needs to be between 0 and 1")
                     } else {
-                        if (beta < 0 || beta > 1) {
-                            alert("your beta needs to be between 0 and 1")
+                        if (gamma < 0 || gamma > 1) {
+                            alert("your gamma needs to be between 0 and 1")
                         } else {
                             SubmitButton.removeEventListener('click', submit);
                             const package = {
                                 type: 'newAI',
                                 data: {
                                     alpha: alpha,
-                                    beta: beta,
+                                    gamma: gamma,
                                     colour: colour,
                                     name: name
                                 }
@@ -184,7 +185,7 @@
             <input type="number" placeholder="Alpha" class="userInput-alpha userprofiling">
             <br>
             <br>
-            <input type="number" placeholder="Beta" class="userInput-beta userprofiling">
+            <input type="number" placeholder="gamma" class="userInput-gamma userprofiling">
             <br>
             <br>
             <input type="color" placeholder="AI Colour" class="userInput-colour userprofiling">
