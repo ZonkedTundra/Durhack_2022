@@ -2,7 +2,7 @@
 mod database;
 mod simulation;
 mod webserver;
-mod betting_maths;
+//mod betting_maths;
 
 use serde_derive::Deserialize;
 
@@ -11,12 +11,8 @@ use std::process::exit;
 use std::sync::{Arc, Mutex};
 
 use lazy_static::lazy_static;
-use serde_derive::Deserialize;
 use toml;
 
-mod database;
-mod simulation;
-mod webserver;
 
 /// The config format from config.toml
 #[derive(Deserialize)]
