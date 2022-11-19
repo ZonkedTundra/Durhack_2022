@@ -21,7 +21,7 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) -> Result<(), String> {
     };
 
     let Ok(client_options) =
-        ClientOptions::parse(format!("{}?tls=true1&tlsCertificateKeyFile={}&authMechanism=MONGODB-X509&authSource=%24external",
+        ClientOptions::parse(format!("{}?tls=true&tlsCertificateKeyFile={}&authMechanism=MONGODB-X509&authSource=%24external",
                                      config.mongo_connection_string,
                                      config.mongo_connection_cert_file)).await else {
         return Err("Uh oh! Database bad config!".to_owned());
