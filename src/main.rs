@@ -69,8 +69,9 @@ async fn main() {
     *global_config = config;
     drop(global_config);
 
-    if let Err(_) = database::init(CONFIG.clone()).await {
+    if let Err(err) = database::init(CONFIG.clone()).await {
         println!("TODO: panic message");
+        println!("{}", err.to_owned());
         return;
     };
     webserver::init(CONFIG.clone()).await;
