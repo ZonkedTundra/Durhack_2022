@@ -22,8 +22,18 @@ impl Default for Config {
     }
 }
 
+/// The state system
+#[derive(Default)]
+enum State {
+    #[default]
+    Lobby,
+    Betting,
+    Racing
+}
+
 lazy_static!{
     static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
+    static ref STATE: Arc<Mutex<State>> = Arc::new(Mutex::new(State::default()));
 }
 
 fn main() {
