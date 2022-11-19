@@ -1,22 +1,41 @@
+use lazy_static::lazy_static;
 use probability_to_friendly_string::FriendlyProbability;
 extern crate lazy_static;
 
-let numOfHorses = //
+//let numOfHorses = //
 
 /// horse struct
 
 struct horse
 {
-    name : string,
-    colour : string,
+    name : String,
+    colour : String,
     totalBetsValue : int64,
     decimalOdds: f64,
-    fractionalOdds: string,
+    fractionalOdds: String,
 }
 
 lazy_static!{
     //array of horses
     static ref HORSES: Arc<Mutex<Vec<horse>>> = Arc::new(Mutex::new(Vec::new()))
+}
+
+fn add_horse(name: String, colour: String, totalBetsValue: int64, decimalOdds: f64, fractionalOdds: String) {
+    let horses_arc = HORSES.clone();
+    let mut horses = match horses_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    };
+    *horses.push(horse { name, colour, totalBetsValue, decimalOdds, fractionalOdds });
+}
+
+fn clear_horses() {
+    let horses_arc = HORSES.clone();
+    let mut horses = match horses_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    };
+    *horses.clear();
 }
 
 /// user struct
