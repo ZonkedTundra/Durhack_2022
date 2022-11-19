@@ -1,7 +1,7 @@
 use probability_to_friendly_string::FriendlyProbability;
 extern crate lazy_static;
 
-
+let numOfHorses = //
 
 /// horse struct
 
@@ -14,8 +14,10 @@ struct horse
     fractionalOdds: string,
 }
 
-///array of horses
-let horses array: [struct; numOfHorses] = [horse{}, numOfHorses]
+lazy_static!{
+    //array of horses
+    static ref HORSES: Arc<Mutex<Vec<horse>>> = Arc::new(Mutex::new(Vec::new()))
+}
 
 /// user struct
 
@@ -37,10 +39,10 @@ let users array: [struct; numOfHorses] = [user{}, numOfHorses]
 fn TakeTotalValue()
 {
 
-    for i in horses[]  // each horse
+    for i in horses  // each horse
     {
         /// add total bets on horse to new var
-        let totalForAll = totalForAll + horses[horse.totalBetsValue]
+        let totalForAll = totalForAll + horses[horse.totalBetsValue];
     }
     
 
@@ -54,9 +56,9 @@ fn TakeTotalValue()
 fn TakeCut()
 {
 
-    let cut = 0.15
+    let cut = 0.15;
 
-    let availablePrize = totalForAll - (totalForAll * cut)
+    let availablePrize = totalForAll - (totalForAll * cut);
 
 }
 
@@ -70,10 +72,10 @@ fn TakeCut()
 fn CalcOdds()
 {
 
-    for i in horses[]//each horse
+    for i in horses//each horse
     {
-        horses[horse.decimalOdds[i]] = (availablePrize - horses[horse.totalBetsValue]) / horses[horse.totalBetsValue.]
-        horses[horse.decimalOdds[i]] = math::round::floor(horses[horse.decimalOdds[i]],2)
+        horses[horse.decimalOdds[i]] = (availablePrize - horses[horse.totalBetsValue]) / horses[horse.totalBetsValue.];
+        horses[horse.decimalOdds[i]] = math::round::floor(horses[horse.decimalOdds[i]],2);
 
         horses[horse.fractionalOdds[i]] = horses[horse.decimalOdds[i].friendly_string()]
     }
@@ -91,15 +93,15 @@ fn CalcOdds()
 fn payouts()
 {
 
-    for i in users[]//each user
+    for i in users//each user
     {
-        for j in user[user.horsesBetOn[]] //each horse bet on 
+        for j in user[user.horsesBetOn] //each horse bet on 
         {
             if users[user.horsesBetOn[j]] == winner
             {
-                moneyPrize = (users[user.valueOfEachBet[j]] * horses[winner.decimalOdds]) + users[user.valueOfEachBet[j]]
+                moneyPrize = (users[user.valueOfEachBet[j]] * horses[winner.decimalOdds]) + users[user.valueOfEachBet[j]];
 
-                users[user{balance}] = users[user{balance}] + moneyPrize
+                users[user.balance] = users[user.balance] + moneyPrize
             }
 
             
