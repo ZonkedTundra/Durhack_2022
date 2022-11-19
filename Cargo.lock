@@ -1396,6 +1396,8 @@ dependencies = [
  "lazy_static",
  "mongodb",
  "poem",
+ "probability_to_friendly_string",
+ "rust_math",
  "serde",
  "serde_derive",
  "toml",
@@ -2975,6 +2977,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 
 [[package]]
+name = "probability_to_friendly_string"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e7055e039a99f65e0b53dcb9219f29c0e3ed8bdce2be3f8922adc3985b33add"
+dependencies = [
+ "lazy_static",
+]
+
+[[package]]
 name = "proc-macro-crate"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3176,6 +3187,12 @@ dependencies = [
  "bitflags",
  "serde",
 ]
+
+[[package]]
+name = "rust_math"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f8cb0c9ad55746a4f9630e638c7809cd7eef2e754024d01b9ea5f51743134ff"
 
 [[package]]
 name = "rustc-hash"
