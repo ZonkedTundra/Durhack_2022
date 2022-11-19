@@ -3,7 +3,7 @@ use std::{env, fs};
 use std::io::Error;
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
-use poem::web::Html;
+use poem::web::{Html, Redirect};
 
 const WEBPAGE_PATH: &str = "index.html";
 
@@ -14,7 +14,7 @@ lazy_static!{
 }
 
 #[handler]
-fn hello() -> impl IntoResponse {
+fn serve() -> impl IntoResponse {
     let webpage_arc = WEBPAGE.clone();
     let x = match webpage_arc.lock() {
         Ok(content) => content,
@@ -23,12 +23,26 @@ fn hello() -> impl IntoResponse {
     Html(x)
 }
 
+#[handler]
+fn reload() -> Redirect {
+    let webpage_arc = WEBPAGE.clone();
+    let mut x = match webpage_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner()
+    };
+    *x = fs::read_to_string(WEBPAGE_PATH).expect("Failed to read file.");
+
+    Redirect::see_other("/")
+}
+
 pub async fn init() {
     start().await.expect("TODO: panic message");
 }
 
 async fn start() -> Result<(), Error> {
-    let app = Route::new().at("*", get(hello));
+    let app = Route::new()
+        .at("/reload", get(reload))
+        .at("*", get(serve));
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .name("hello-world")
         .run(app)
