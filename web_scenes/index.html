@@ -111,6 +111,8 @@
                                 }
                             }
                             ws.send(JSON.stringify(package))
+                            scene = 'BettingScene'
+                            document.dispatchEvent(changeScene);
                         }
                     }
                 }
