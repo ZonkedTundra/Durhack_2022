@@ -151,7 +151,7 @@
             if (event.Data === 'ping')
                 return ws.send('pong');
 
-            const package = JSON.parse(event.Data);
+            const package = JSON.parse(event.data);
             if (package.Type === "loginresponse") {
                 // will receive Type, Data(balance(number), success(boolean))
                 if (package.Data.success) {
