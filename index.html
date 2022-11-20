@@ -3,5 +3,28 @@
 <h3>
     aaa
 </h3>
+<input type="text" id="text">
+<button onclick="send()">send</button>
+<script>
+    let loc = window.location, new_uri;
+    if (loc.protocol === "https:") {
+        new_uri = "wss:";
+    } else {
+        new_uri = "ws:";
+    }
+    new_uri += "//" + loc.host;
+    new_uri += loc.pathname + "ws";
+    let webSocket = new WebSocket(new_uri);
+    webSocket.onmessage = (event) => {
+        if(event.data == "ping"){
+            webSocket.send("pong")
+        }
+        alert(event.data);
+    }
+
+    function send() {
+        webSocket.send(document.getElementById("text").value);
+    }
+</script>
 </body>
 </html>

@@ -1,15 +1,22 @@
-use std::{env, fs};
+use std::{env, fs, thread};
+use std::borrow::ToOwned;
 use std::io::Error;
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
+use futures_util::{SinkExt, StreamExt};
+use futures_util::future::err;
 use lazy_static::lazy_static;
-use poem::{
-    EndpointExt, get, handler, IntoResponse, listener::TcpListener, middleware::Tracing, Route,
-    Server, web::Path,
-};
-use poem::web::{Html, Redirect};
+use poem::{get, handler, IntoResponse, Route, Server, web::websocket::{Message, WebSocket}};
+use poem::listener::TcpListener;
+use poem::web::{Data, Html, Redirect};
+use poem::web::websocket::WebSocketStream;
+use tokio::io::AsyncBufReadExt;
+use tokio::time;
+use tokio::time::interval;
 
 use crate::{Config, CONFIG};
+use crate::system::handle;
 
 const WEBPAGE_PATH: &str = "index.html";
 
@@ -27,6 +34,7 @@ fn serve() -> impl IntoResponse {
         Err(content) => content.into_inner(),
     }
     .to_owned();
+
     Html(webpage)
 }
 
@@ -42,6 +50,31 @@ fn reload() -> Redirect {
     Redirect::see_other("/")
 }
 
+#[handler]
+async fn create_websocket(ws: WebSocket) -> impl IntoResponse {
+    ws.on_upgrade(|mut socket| async move {
+        loop {
+            if let Some(res) = socket.next().await {
+                match res {
+                    Ok(ok) => {
+                        // aaaaaaaaaa
+                        match ok {
+                            Message::Text(text) => {handle(text)}
+                            Message::Binary(_) => {}
+                            Message::Ping(_) => {}
+                            Message::Pong(_) => {}
+                            Message::Close(_) => {}
+                        }
+                    }
+                    Err(err) => {
+                        return err
+                    }
+                }
+            }
+        }
+    })
+}
+
 pub async fn init(conf_arc: Arc<Mutex<Config>>) {
     let config = match conf_arc.lock() {
         Ok(content) => content,
@@ -53,7 +86,12 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) {
 }
 
 async fn start(address: &String) -> Result<(), Error> {
-    let app = Route::new().at("/reload", get(reload)).at("*", get(serve));
+    let app = Route::new()
+        .at("/ws", get(create_websocket))
+        .at("/reload", get(reload))
+        .at("*", get(serve));
+        //.at("/ws/:name", get(ws.data(tokio::sync::broadcast::channel::<String>(32).0)));
+        ;
     Server::new(TcpListener::bind(address.to_owned()))
         .name("hello-world")
         .run(app)
