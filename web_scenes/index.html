@@ -118,7 +118,7 @@
             },
 
             BettingScene: App => {
-                function submit(){
+                function submit() {
                     let bet = App.getElementsByClassName("userInput-betting")[0].value;
                     bet = parseInt(bet)
                     const horsename = App.getElementsByClassName("horse-names")[0].value;
@@ -137,16 +137,17 @@
                                 }
                             }
                             ws.send(JSON.stringify(package))
-                            document.dispatchEvent(changeScene);
-                            x = document.getElementsByClassName("horse-name")
-                            let htmlString = ""
-                            for (let i = 0; i < package.Data.horseName; i++) {
-                                htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
-                            }
-                            x.innerHTML = htmlString
                         }
                     }
                 }
+                document.dispatchEvent(changeScene);
+                x = document.getElementsByClassName("horse-name")
+                let htmlString = ""
+                for (let i = 0; i < package.Data.horseName; i++) {
+                    htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
+                    x.innerHTML = htmlString
+                }
+
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
 
