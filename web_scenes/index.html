@@ -134,6 +134,7 @@
 
             BettingScene: App => {
                 function submit() {
+                    const package = JSON.parse(event.data);
                     let bet = App.getElementsByClassName("userInput-betting")[0].value;
                     bet = parseInt(bet)
                     const horsename = App.getElementsByClassName("horse-names")[0].value;
