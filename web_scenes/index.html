@@ -63,7 +63,7 @@
                         scene = "AdminScene"
                         document.dispatchEvent(changeScene);
                     }
-                    if (token === '') {
+                    else if (token === '') {
                         alert('The enter field is blank')
                     } else {
                         SubmitButton.removeEventListener('click', submit);
@@ -159,7 +159,7 @@
                 x = document.getElementsByClassName("horse-name")
                 let htmlString = ""
                 for (let i = 0; i < package.Data.horseName; i++) {
-                    htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
+                    htmlString += `<option value=${i}>${package.Data.horseName[i]}</option>`
                     x.innerHTML = htmlString
                 }
 
@@ -186,14 +186,17 @@
                         token: token,
                         Data: {}
                     }
+                    ws.send(JSON.stringify(package))
                     scene = "LiveBettingScene"
                     document.dispatchEvent(changeScene);
+                    
                 }
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
 
                 const bettingButton = App.getElementsByClassName('livebetting')[0];
                 bettingButton.addEventListener('click', livebetting);
+                
             }
         }
 
@@ -228,7 +231,7 @@
                     x = document.getElementsByClassName("horse-name")[0]
                     let htmlString = ""
                     for (let i = 0; i < package.Data.horseName; i++) {
-                        htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
+                        htmlString += `<option value=${i}}>${package.Data.horseName[i]}</option>`
                     }
                     x.innerHTML = htmlString
                     x = document.getElementsByClassName("balance-footer")
@@ -336,5 +339,4 @@
     <dl class="betting">
     </dl>
 </template>
-
 </html>
