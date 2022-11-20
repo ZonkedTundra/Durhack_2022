@@ -36,7 +36,7 @@
 
     <script>
         let App = undefined;
-        let scene = 'RaceScene';
+        let scene = 'LoginScene';
 
         const changeScene = new CustomEvent("change-scene");
         document.addEventListener('change-scene', () => {
@@ -53,14 +53,18 @@
             LoginScene: App => {
                 function submit() {
                     const token = App.getElementsByClassName("userInput-token")[0].value;
-                    SubmitButton.removeEventListener('click', submit);
-                    const package = {
-                        type: 'login',
-                        data: {
-                            token: token
+                    if (token === '') {
+                        alert('The enter field is blank')
+                    } else {
+                        SubmitButton.removeEventListener('click', submit);
+                        const package = {
+                            Type: 'login',
+                            Data: {
+                                token: token
+                            }
                         }
+                        ws.send(JSON.stringify(package))
                     }
-                    ws.send(JSON.stringify(package))
                 }
 
                 const SubmitButton = App.getElementsByClassName('submit')[0];
@@ -72,22 +76,26 @@
                     const gamma = App.getElementsByClassName("userInput-gamma")[0].value;
                     const colour = App.getElementsByClassName("userInput-colour")[0].value;
                     const name = App.getElementsByClassName("userInput-name")[0].value;
-                    if (alpha < 0 || alpha > 1) {
-                        alert("your alpha needs to be between 0 and 1")
-                    } else if (gamma < 0 || gamma > 1) {
-                        alert("your gamma needs to be between 0 and 1")
+                    if (alpha === '' || gamma === '' || colour === '' || name === '') {
+                        alert('you have have a blank field')
                     } else {
-                        SubmitButton.removeEventListener('click', submit);
-                        const package = {
-                            type: 'newAI',
-                            data: {
-                                alpha: alpha,
-                                gamma: gamma,
-                                colour: colour,
-                                name: name
+                        if (alpha < 0 || alpha > 1) {
+                            alert("your alpha needs to be between 0 and 1")
+                        } else if (gamma < 0 || gamma > 1) {
+                            alert("your gamma needs to be between 0 and 1")
+                        } else {
+                            SubmitButton.removeEventListener('click', submit);
+                            const package = {
+                                Type: 'newAI',
+                                Data: {
+                                    alpha: alpha,
+                                    gamma: gamma,
+                                    colour: colour,
+                                    name: name
+                                }
                             }
+                            ws.send(JSON.stringify(package))
                         }
-                        ws.send(JSON.stringify(package))
                     }
                 }
                 const SubmitButton = App.getElementsByClassName('submit')[0];
@@ -97,41 +105,49 @@
             BettingScene: App => {
                 const bet = App.getElementsByClassName("userInput-betting")[0].value;
                 const horsename = App.getElementsByClassName("horse-names")[0].value;
-                if (bet > package.data.balance) {
-                    alert("you have insufficient funds")
+                if (bet === '' || horsename === '') {
+                    alert('you have have a blank field')
                 } else {
-                    SubmitButton.removeEventListener('click', submit);
-                    const package = {
-                        type: 'bettinginfo',
-                        data: {
-                            bet: bet,
-                            horsename: horsename
+                    if (bet > package.Data.balance) {
+                        alert("you have insufficient funds")
+                    } else {
+                        SubmitButton.removeEventListener('click', submit);
+                        const package = {
+                            Type: 'bettinginfo',
+                            Data: {
+                                bet: bet,
+                                horsename: horsename
+                            }
                         }
+                        ws.send(JSON.stringify(package))
+                        document.dispatchEvent(changeScene);
+                        x = document.getElementsByClassName("horse-name")
+                        let htmlString = ""
+                        for (let i = 0; i < package.Data.horseName; i++) {
+                            htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
+                        }
+                        x.innerHTML = htmlString
                     }
-                    ws.send(JSON.stringify(package))
-                    document.dispatchEvent(changeScene);
-                    x = document.getElementsByClassName("horse-name")
-                    let htmlString = ""
-                    for (let i = 0; i < package.data.horseName; i++) {
-                        htmlString += `<option value=${package.data.horseName[i]}>${package.data.horseName[i]}</option>`
-                    }
-                    x.innerHTML = htmlString
                 }
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
+
             }
         }
 
         const ws = new WebSocket(`ws://localhost:8080/`);
         ws.onmessage = event => {
-            const package = JSON.parse(event.data);
-            if (package.type === "loginresponse") {
-                // will receive type, data(balance(number), success(boolean))
-                if (package.data.success) {
+            if (event.Data === 'ping')
+                return ws.send('pong');
+
+            const package = JSON.parse(event.Data);
+            if (package.Type === "loginresponse") {
+                // will receive Type, Data(balance(number), success(boolean))
+                if (package.Data.success) {
                     scene = "AIScene"
                     document.dispatchEvent(changeScene);
                     x = document.getElementsByClassName("balance-footer")
-                    let balanceString = `Balance: ${package.data.balance}`
+                    let balanceString = `Balance: ${package.Data.balance}`
                     x.innerHTML = balanceString
                 } else {
                     alert("Token is incorrect")
@@ -139,19 +155,19 @@
                     document.dispatchEvent(changeScene);
                 }
             }
-            if (package.type === "AIresponse") {
-                //will receive type, data(balance(number), horsename(list), success(boolean))
-                if (package.data.success) {
+            if (package.Type === "AIresponse") {
+                //will receive Type, Data(balance(number), horsename(list), success(boolean))
+                if (package.Data.success) {
                     scene = "BettingScene"
                     document.dispatchEvent(changeScene);
                     x = document.getElementsByClassName("horse-name")
                     let htmlString = ""
-                    for (let i = 0; i < package.data.horseName; i++) {
-                        htmlString += `<option value=${package.data.horseName[i]}>${package.data.horseName[i]}</option>`
+                    for (let i = 0; i < package.Data.horseName; i++) {
+                        htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
                     }
                     x.innerHTML = htmlString
                     x = document.getElementsByClassName("balance-footer")
-                    let balanceString = `Balance: ${package.data.balance}`
+                    let balanceString = `Balance: ${package.Data.balance}`
                     x.innerHTML = balanceString
                 } else {
                     alert("Data entered is incorrect")
@@ -159,12 +175,12 @@
                     document.dispatchEvent(changeScene);
                 }
             }
-            if (package.type === "race") {
-                //will recieve type, data(balance(number))
+            if (package.Type === "race") {
+                //will recieve Type, Data(balance(number))
                 scene = "RaceScene"
                 document.dispatchEvent(changeScene);
                 x = document.getElementsByClassName("balance-footer")
-                let balanceString = `Balance: ${package.data.balance}`
+                let balanceString = `Balance: ${package.Data.balance}`
                 x.innerHTML = balanceString
             }
         }
@@ -184,10 +200,9 @@
         </span>
     </footer>
     <template id="LoginScene">
-
         <form>
             <p>Please enter your token:</p>
-            <input type="text" placeholder="Token" class="userInput-token">
+            <input Type="text" placeholder="Token" class="userInput-token">
         </form>
         <br>
         <button class="submit">Submit</button>
@@ -196,16 +211,16 @@
     <template id="AIScene">
         <form>
             <p>Customise your AI:</p>
-            <input type="number" placeholder="Alpha" class="userInput-alpha userprofiling">
+            <input Type="number" placeholder="Alpha" class="userInput-alpha userprofiling">
             <br>
             <br>
-            <input type="number" placeholder="gamma" class="userInput-gamma userprofiling">
+            <input Type="number" placeholder="gamma" class="userInput-gamma userprofiling">
             <br>
             <br>
-            <input type="color" placeholder="AI Colour" class="userInput-colour userprofiling">
+            <input Type="color" placeholder="AI Colour" class="userInput-colour userprofiling">
             <br>
             <br>
-            <input type="text" placeholder="AI's Name" class="userInput-name userprofiling">
+            <input Type="text" placeholder="AI's Name" class="userInput-name userprofiling">
         </form>
         <br>
         <button class="submit">Submit</button>
@@ -218,7 +233,7 @@
     <select name="horse-names" class="horse-names">
     </select>
     <br>
-    <input type="number" placeholder="Betting amount" class="userInput-betting userprofiling">
+    <input Type="number" placeholder="Betting amount" class="userInput-betting userprofiling">
     <br>
     <button class="submit">Submit</button>
 </template>
