@@ -237,7 +237,7 @@
                         htmlString += `<option value=${i}}>${package.Data.horseName[i]}</option>`
                     }
                     x.innerHTML = htmlString
-                    x = document.getElementsByClassName("balance-footer")
+                    x = document.getElementsByClassName("balance-footer")[0]
                     let balanceString = `Balance: ${package.Data.balance}`
                     x.innerHTML = balanceString
                 } else {
