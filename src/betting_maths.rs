@@ -139,13 +139,13 @@ fn TakeCut(totalForAll : i32) {
 fn CalcOdds(availablePrize : i32) 
 {
     let horses_arc = HORSES.clone();
-    let horses = match horses_arc.lock() {
+    let mut horses = match horses_arc.lock() {
         Ok(content) => content,
         Err(content) => content.into_inner(),
     };
 
 
-    for horse in horses.iter()
+    for horse in horses.iter_mut()
     {
         let mut a = availablePrize - (horse.totalBetsValue);
         let mut b = horse.totalBetsValue;
