@@ -258,11 +258,11 @@
                 //will recieve Type, Token, Data(horsename(list), liveodds(list), form(list))
                 scene = "LiveBettingScene"
                 document.dispatchEvent(changeScene);
-                x = document.getElementsByClassName("betting")[0]
+                 let x = document.getElementsByClassName("betting")[0]
                 for (let i = 0; i < package.Data.horseName; i++) {
-                    y = document.createElement("dt")
-                    z = document.createElement("dd")
-                    a = document.createElement("dd")
+                    let y = document.createElement("dt")
+                    let z = document.createElement("dd")
+                    let a = document.createElement("dd")
                     y.innerString = "Name: " + package.Data.horsename[i]
                     z.innerstring = "Form: " + package.Data.form[i]
                     a.innerstring = "Odd: " + package.Data.liveodds[i]
