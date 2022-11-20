@@ -1,1 +1,3 @@
-mongo_connection_string = ""
+mongo_connection_string = "mongodb+srv://cluster0.tq8wsy9.mongodb.net/"
+mongo_connection_cert_file = "%2Fhome%2Ftom%2FDurhack_2022%2FX509-cert-8944492594401463102.pem"
+webserver_address = "127.0.0.1:3000"
