@@ -18,7 +18,7 @@ pub async fn handle(text: String) -> Option<String> {
         return Option::from("go away".to_owned());
     }
 
-    match json["Type"].as_str().unwrap() {
+    return match json["Type"].as_str().unwrap() {
         "login" => {
             return Option::from(if !json["token"].is_null() && !get_player(json["token"].as_str().unwrap()).await.is_none() {
                 let balance: i32 = balance_get(json["token"].as_str().unwrap()).await;
@@ -40,10 +40,18 @@ pub async fn handle(text: String) -> Option<String> {
             }.to_string())
         }
         "newAI" => {
-            if json["Data"]["alpha"].is_null() || json["Data"]["gamma"].is_null() || json["Data"]["omega"].is_null() || json["Data"]["colour"].is_null() || json["Data"]["name"].is_null() {
-                add_horse(json["Data"]["name"].as_str().unwrap().to_owned(), json["Data"]["colour"].as_str().unwrap().to_owned(), json["Data"]["alpha"].as_f32().unwrap().to_owned(), json["Data"]["beta"].as_f32().unwrap().to_owned(), json["Data"]["gamma"].as_f32().unwrap().to_owned())
+            return Option::from(if json["Data"]["alpha"].is_null() || json["Data"]["gamma"].is_null() || json["Data"]["omega"].is_null() || json["Data"]["colour"].is_null() || json["Data"]["name"].is_null() {
+                add_horse(json["Data"]["name"].as_str().unwrap().to_owned(), json["Data"]["colour"].as_str().unwrap().to_owned(), json["Data"]["alpha"].as_f32().unwrap().to_owned(), json["Data"]["beta"].as_f32().unwrap().to_owned(), json["Data"]["gamma"].as_f32().unwrap().to_owned());
+                json!({
+                    "Type": "AIresponse",
+                    "Data": {
+                        "success": false,
+                        "balance": 0,
+                        "horsename": []
+                    }
+                })
             } else {
-                add_horse(json["Data"]["name"].as_str().unwrap().to_owned(), json["Data"]["colour"].as_str().unwrap().to_owned(),json["Data"]["alpha"].as_f32().unwrap().to_owned(), json["Data"]["beta"].as_f32().unwrap().to_owned(), json["Data"]["gamma"].as_f32().unwrap().to_owned());
+                add_horse(json["Data"]["name"].as_str().unwrap().to_owned(), json["Data"]["colour"].as_str().unwrap().to_owned(),json["Data"]["alpha"].as_f32().unwrap().to_owned(), json["Data"]["gamma"].as_f32().unwrap().to_owned(), json["Data"]["omega"].as_f32().unwrap().to_owned());
                 let balance: i32 = balance_get(json["token"].as_str().unwrap()).await;
                 let horselist: Vec<String> = name_horses();
                 json!({
@@ -53,10 +61,8 @@ pub async fn handle(text: String) -> Option<String> {
                         "balance": balance,
                         "horsename": horselist
                     }
-                });
-
-
-            }
+                })
+            }.to_string())
         }
 
         "bettinginfo" => {
@@ -68,6 +74,7 @@ pub async fn handle(text: String) -> Option<String> {
             return None
         }
         "race" => {
+            None
             //let data: Data_Res_Race = serde_json::from_str(&json.Data).unwrap();
         }
         "requestbetting" => {
@@ -108,11 +115,8 @@ pub async fn handle(text: String) -> Option<String> {
                     }).to_string());
                 }
             }
+            return None;
         }
-
-        }
-
-
-        _ => {println!("HAAAAAAAAAAAAAAA")}
+        _ => {None}
     }
-    Option::from("".t
+}

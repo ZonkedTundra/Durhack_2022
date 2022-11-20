@@ -25,7 +25,7 @@ struct Bet {
 }
 
 
-fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
+pub(crate) fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     let mut r = Ok(());
     HORSES.with(|horses_mutex| {
         let mut horses = match horses_mutex.lock() {
