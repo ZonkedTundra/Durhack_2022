@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 extern crate lazy_static;
 use std::sync::{Arc, Mutex};
 
-//let numOfHorses = //
+
 
 struct Bet {
     playerId: String,
@@ -33,6 +33,7 @@ fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     //take from user balance 
     // balance - horse.bet.value ???
 
+    balance_sub(playerId, betValue);
 
     Ok(())
 }
@@ -46,6 +47,7 @@ struct Horse {
     decimalOdds: f32,
     fractionalOdds: String,
     bets: Vec<Bet>,
+    form: Vec<u8>,
 }
 
 lazy_static! {
@@ -200,7 +202,7 @@ fn Payouts(winner: usize)
         let prizeMoney = (bet.value) as f32 * (horse.decimalOdds + 1.0);
 
         //add to balance
-        todo!()
+        balance_add(playerId,prizeMoney)
     }
     
 }
