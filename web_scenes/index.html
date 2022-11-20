@@ -233,7 +233,7 @@
                     document.dispatchEvent(changeScene);
                     let x = document.getElementsByClassName("horse-names")[0]
                     let htmlString = ""
-                    for (let i = 0; i < package.Data.horseName.len(); i++) {
+                    for (let i = 0; i < package.Data.horseName.length; i++) {
                         htmlString += `<option value=${i}}>${package.Data.horseName[i]}</option>`
                     }
                     x.innerHTML = htmlString
