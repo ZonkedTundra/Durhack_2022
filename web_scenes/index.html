@@ -98,8 +98,19 @@
                         }
                     }
                 }
+                function skip() {
+                    SubmitButton.removeEventListener('click', skip);
+                    const package = {
+                        Type: 'requestbetting',
+                        Data: {}
+                    }
+                    ws.send(JSON.stringify(package))
+                }
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
+
+                const skipbutton = App.getElementsByClassName('skip')[0];
+                SubmitButton.addEventListener('click', skip)
             },
 
             BettingScene: App => {
@@ -134,7 +145,7 @@
 
             }
         }
-        let loc = window.location, new_uri;     if (loc.protocol === "https:") {         new_uri = "wss:";     } else {         new_uri = "ws:";     }     new_uri += "//" + loc.host;     new_uri += loc.pathname + "ws";
+        let loc = window.location, new_uri; if (loc.protocol === "https:") { new_uri = "wss:"; } else { new_uri = "ws:"; } new_uri += "//" + loc.host; new_uri += loc.pathname + "ws";
         const ws = new WebSocket(new_uri);
         ws.onmessage = event => {
             if (event.Data === 'ping')
@@ -224,6 +235,7 @@
         </form>
         <br>
         <button class="submit">Submit</button>
+        <button class="skip">Skip</button>
     </template>
 </body>
 
