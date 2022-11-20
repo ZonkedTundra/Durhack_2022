@@ -25,3 +25,4 @@ rust_math = "0.3.7"
 probability_to_friendly_string = "0.3.0"
 tokio = "1.22.0"
 futures-util = "0.3.25"
+
