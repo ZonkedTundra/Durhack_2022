@@ -231,7 +231,7 @@
                 if (package.Data.success) {
                     scene = "BettingScene"
                     document.dispatchEvent(changeScene);
-                    let x = document.getElementsByClassName("horse-name")[0]
+                    let x = document.getElementsByClassName("horse-names")[0]
                     let htmlString = ""
                     for (let i = 0; i < package.Data.horseName; i++) {
                         htmlString += `<option value=${i}}>${package.Data.horseName[i]}</option>`
