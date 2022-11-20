@@ -30,6 +30,7 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) -> Result<(), String> {
                                      config.mongo_connection_cert_file)).await else {
         return Err("Uh oh! Database bad config!".to_owned());
     };
+    drop(config);
 
     let Ok(client) = Client::with_options(client_options) else {
         return Err("Uh oh! Database no connection!".to_owned());
@@ -98,4 +99,14 @@ pub async fn get_player(token: &str) -> Option<Document> {
         Err(content) => content.into_inner(),
     }.to_owned().unwrap();
     db.collection::<Document>("players").find_one(doc! {"token": {"$eq": token}}, None).await.unwrap()
+}
+
+pub async fn player_new(token: &str) {
+    let database_arc = DATABASE.clone();
+    let mut db = match database_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    }.to_owned().unwrap();
+    db.collection::<Document>("players").insert_one(doc! {"token": token, "balance": 100}, None).await.expect("TODO: panic message");
+    drop(db);
 }

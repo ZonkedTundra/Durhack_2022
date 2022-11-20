@@ -21,6 +21,7 @@ pub struct Config {
     mongo_connection_string: String,
     mongo_connection_cert_file: String,
     webserver_address: String,
+    admin_token: String
 }
 
 impl Default for Config {
@@ -29,6 +30,7 @@ impl Default for Config {
             mongo_connection_string: "".to_owned(),
             mongo_connection_cert_file: "./cert.pem".to_owned(),
             webserver_address: "127.0.0.1:3000".to_owned(),
+            admin_token: "".to_string()
         }
     }
 }

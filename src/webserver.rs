@@ -77,6 +77,7 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) {
     start(&config.webserver_address)
         .await
         .expect("TODO: panic message");
+    drop(config);
 }
 
 async fn start(address: &String) -> Result<(), Error> {

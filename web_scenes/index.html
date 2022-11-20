@@ -267,6 +267,9 @@
                 }
                 x.innerHTML = htmlString
             }
+            if (package.Type === "alert") {
+                alert(package.Data.value)
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {

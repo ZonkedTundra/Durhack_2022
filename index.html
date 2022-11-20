@@ -16,9 +16,6 @@
     new_uri += loc.pathname + "ws";
     let webSocket = new WebSocket(new_uri);
     webSocket.onmessage = (event) => {
-        if(event.data == "ping"){
-            webSocket.send("pong")
-        }
         alert(event.data);
     }
 
