@@ -1,11 +1,11 @@
 use std::{env, fs};
 use std::io::Error;
 use std::sync::{Arc, Mutex};
-
+use futures_util::StreamExt;
 use lazy_static::lazy_static;
-use mongodb::bson::doc;
-use mongodb::Client;
-use mongodb::options::ClientOptions;
+use mongodb::{bson, Client, ClientSession, Database};
+use mongodb::bson::{doc, Document};
+use mongodb::options::{ClientOptions, Predicate};
 use poem::{
     EndpointExt, get, handler, IntoResponse, listener::TcpListener, middleware::Tracing, Route,
     Server, web::Path,
@@ -13,6 +13,10 @@ use poem::{
 use poem::web::{Html, Redirect};
 
 use crate::{Config, CONFIG};
+
+lazy_static!(
+    static ref DATABASE: Arc<Mutex<Option<Database>>> = Arc::new(Mutex::new(Option::None));
+);
 
 pub async fn init(conf_arc: Arc<Mutex<Config>>) -> Result<(), String> {
     let config = match conf_arc.lock() {
@@ -40,5 +44,54 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) -> Result<(), String> {
         return Err("Uh oh! Failed to ping the database!".to_owned());
     }
     println!(" Connected!");
+
+    let db = client.database("compiling");
+    db.create_collection("players", None);
+
+    let database_arc = DATABASE.clone();
+    let mut database = match database_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    };
+    *database = Option::from(db);
+    drop(database);
+    
     Ok(())
+}
+
+pub async fn balance_get(token: &str) -> i32 {
+    let database_arc = DATABASE.clone();
+    let db = match database_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    }.to_owned().unwrap();
+    return if let Some(val) = db.collection::<Document>("players").find_one(doc! {"token": {"$ne": 0}}, None).await.unwrap() {
+        val.get("balance").unwrap().as_i32().unwrap()
+    } else {
+        -1
+    }
+}
+
+pub async fn balance_set(token: &str, value: i32) {
+    let database_arc = DATABASE.clone();
+    let mut db = match database_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    }.to_owned().unwrap();
+    db.collection::<Document>("players").update_one(doc! {"token": {"$eq": token}}, doc! {"$set": {"balance": value}}, None).await.expect("TODO: panic message");
+    drop(db);
+}
+
+pub async fn balance_add(token: &str, value: i32) {
+    balance_set(token, balance_get(token).await + value).await;
+}
+
+pub async fn balance_sub(token: &str, value: i32) -> bool{
+    let prev:i32 = balance_get(token).await;
+    if prev < value {
+        return false;
+    }
+    // race conditions galore
+    balance_set(token, prev - value).await;
+    true
 }

@@ -34,7 +34,6 @@ fn serve() -> impl IntoResponse {
         Err(content) => content.into_inner(),
     }
     .to_owned();
-
     Html(webpage)
 }
 
