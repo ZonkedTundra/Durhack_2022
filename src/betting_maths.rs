@@ -10,7 +10,7 @@ struct Bet {
     
 }
 
-async fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
+pub async fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     let horses_arc = HORSES.clone();
     let mut horses = match horses_arc.lock() {
         Ok(content) => content,
@@ -58,6 +58,16 @@ struct Horse {
 lazy_static! {
     //vector of horses
     static ref HORSES: Arc<Mutex<Vec<Horse>>> = Arc::new(Mutex::new(Vec::new()));
+}
+
+pub fn name_horses() -> Vec<String> {
+    let horses_arc = HORSES.clone();
+    let mut horses = match horses_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    };
+    // we stopped writing fac=st code about 8 hours sho.
+    horses.iter().map(|x| x.name.clone()).collect()
 }
 
 pub fn add_horse(
