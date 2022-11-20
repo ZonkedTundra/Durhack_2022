@@ -184,7 +184,7 @@ fn CalcOdds(availablePrize : i32)
     }
 }*/
 
-fn Payouts(winner: usize)
+fn Payouts(winner: usize, playerId: String)
 {
     let horses_arc = HORSES.clone();
     let horses = match horses_arc.lock() {
