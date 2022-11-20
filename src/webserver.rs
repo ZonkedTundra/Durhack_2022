@@ -18,7 +18,7 @@ use tokio::time::interval;
 use crate::{Config, CONFIG};
 use crate::system::handle;
 
-const WEBPAGE_PATH: &str = "index.html";
+const WEBPAGE_PATH: &str = "web_scenes/index.html";
 
 lazy_static! {
     static ref WEBPAGE: Arc<Mutex<String>> = Arc::new(Mutex::new({
@@ -59,7 +59,7 @@ async fn create_websocket(ws: WebSocket) -> impl IntoResponse {
                     Ok(ok) => {
                         // aaaaaaaaaa
                         match ok {
-                            Message::Text(text) => {handle(text)}
+                            Message::Text(text) => {socket.send(Message::Text(handle(text)));}
                             Message::Binary(_) => {}
                             Message::Ping(_) => {}
                             Message::Pong(_) => {}
