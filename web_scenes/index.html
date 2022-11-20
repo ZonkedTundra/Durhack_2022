@@ -137,7 +137,6 @@
                     let bet = App.getElementsByClassName("userInput-betting")[0].value;
                     bet = parseInt(bet)
                     const horsename = App.getElementsByClassName("horse-names")[0].value;
-                    const token = package.Token
                     if (bet === '' || horsename === '') {
                         alert('you have have a blank field')
                     } else {
@@ -158,7 +157,7 @@
                             document.dispatchEvent(changeScene);
                             let x = document.getElementsByClassName("horse-name")
                             let htmlString = ""
-                            for (let i = 0; i < package.Data.horseName; i++) {
+                            for (let i = 0; i < package.Data.horseName.length; i++) {
                                 htmlString += `<option value=${i}>${package.Data.horseName[i]}</option>`
                                 x.innerHTML = htmlString
                             }
@@ -259,7 +258,7 @@
                 scene = "LiveBettingScene"
                 document.dispatchEvent(changeScene);
                  let x = document.getElementsByClassName("betting")[0]
-                for (let i = 0; i < package.Data.horseName; i++) {
+                for (let i = 0; i < package.Data.horseName.length; i++) {
                     let y = document.createElement("dt")
                     let z = document.createElement("dd")
                     let a = document.createElement("dd")
