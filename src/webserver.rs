@@ -15,8 +15,8 @@ use tokio::io::AsyncBufReadExt;
 use tokio::time;
 use tokio::time::interval;
 
-use crate::{Config, CONFIG};
 use crate::system::handle;
+use crate::{Config, CONFIG};
 
 const WEBPAGE_PATH: &str = "web_scenes/index.html";
 

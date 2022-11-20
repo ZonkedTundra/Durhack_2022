@@ -4,6 +4,7 @@ use rsrl::{
     spaces::{discrete::Ordinal, real::Interval, ProductSpace},
 };
 use std::{f32::consts::PI, f64};
+use rapier2d::parry::na::base::{dimension::Const, Matrix};
 
 const MOTOR_FACTOR: f32 = 0.5;
 const MOTOR_MAX: f64 = 2. * f64::consts::PI;
@@ -304,6 +305,11 @@ impl Default for Simulation {
 impl Simulation {
     fn new() -> Self {
         Self::default()
+    }
+    
+    fn get_body_coordinates(&self) -> Matrix<f32, Const<2>, Const<1>, ArrayStorage<f32, 2, 1>> {
+        let body = self.rigid_body_set.get(self.body_handle).unwrap();
+        *body.translation()
     }
 }
 
