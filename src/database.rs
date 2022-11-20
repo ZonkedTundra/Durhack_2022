@@ -60,13 +60,8 @@ pub async fn init(conf_arc: Arc<Mutex<Config>>) -> Result<(), String> {
 }
 
 pub async fn balance_get(token: &str) -> i32 {
-    let database_arc = DATABASE.clone();
-    let db = match database_arc.lock() {
-        Ok(content) => content,
-        Err(content) => content.into_inner(),
-    }.to_owned().unwrap();
-    return if let Some(val) = db.collection::<Document>("players").find_one(doc! {"token": {"$ne": 0}}, None).await.unwrap() {
-        val.get("balance").unwrap().as_i32().unwrap()
+    if let Some(player) = get_player(token).await {
+        player.get("balance").unwrap().as_i32().unwrap()
     } else {
         -1
     }
@@ -94,4 +89,13 @@ pub async fn balance_sub(token: &str, value: i32) -> bool{
     // race conditions galore
     balance_set(token, prev - value).await;
     true
+}
+
+pub async fn get_player(token: &str) -> Option<Document> {
+    let database_arc = DATABASE.clone();
+    let db = match database_arc.lock() {
+        Ok(content) => content,
+        Err(content) => content.into_inner(),
+    }.to_owned().unwrap();
+    db.collection::<Document>("players").find_one(doc! {"token": {"$eq": token}}, None).await.unwrap()
 }
