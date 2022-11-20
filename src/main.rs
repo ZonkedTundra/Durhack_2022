@@ -2,12 +2,9 @@
 mod database;
 mod simulation;
 mod webserver;
-<<<<<<< Updated upstream
 mod system;
-//mod betting_maths;
-=======
 mod betting_maths;
->>>>>>> Stashed changes
+
 
 use serde_derive::Deserialize;
 
