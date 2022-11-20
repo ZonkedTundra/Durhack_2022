@@ -156,7 +156,7 @@
                             ws.send(JSON.stringify(package))
                             scene = 'BettingScene'
                             document.dispatchEvent(changeScene);
-                            x = document.getElementsByClassName("horse-name")
+                            let x = document.getElementsByClassName("horse-name")
                             let htmlString = ""
                             for (let i = 0; i < package.Data.horseName; i++) {
                                 htmlString += `<option value=${i}>${package.Data.horseName[i]}</option>`
@@ -231,7 +231,7 @@
                 if (package.Data.success) {
                     scene = "BettingScene"
                     document.dispatchEvent(changeScene);
-                    x = document.getElementsByClassName("horse-name")[0]
+                    let x = document.getElementsByClassName("horse-name")[0]
                     let htmlString = ""
                     for (let i = 0; i < package.Data.horseName; i++) {
                         htmlString += `<option value=${i}}>${package.Data.horseName[i]}</option>`
