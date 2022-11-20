@@ -36,7 +36,7 @@
 
     <script>
         let App = undefined;
-        let scene = 'LoginScene';
+        let scene = 'BettingScene';
 
         const changeScene = new CustomEvent("change-scene");
         document.addEventListener('change-scene', () => {
@@ -74,15 +74,18 @@
                 function submit() {
                     const alpha = App.getElementsByClassName("userInput-alpha")[0].value;
                     const gamma = App.getElementsByClassName("userInput-gamma")[0].value;
+                    const omega = App.getElementsByClassName("userInput-omega")[0].value;
                     const colour = App.getElementsByClassName("userInput-colour")[0].value;
                     const name = App.getElementsByClassName("userInput-name")[0].value;
-                    if (alpha === '' || gamma === '' || colour === '' || name === '') {
+                    if (alpha === '' || gamma === '' || omega === '' || colour === '' || name === '') {
                         alert('you have have a blank field')
                     } else {
                         if (alpha < 0 || alpha > 1) {
                             alert("your alpha needs to be between 0 and 1")
                         } else if (gamma < 0 || gamma > 1) {
                             alert("your gamma needs to be between 0 and 1")
+                        } else if (omega < 0 || omega > 1) {
+                            alert("your omega needs to be between 0 and 1")
                         } else {
                             SubmitButton.removeEventListener('click', submit);
                             const package = {
@@ -90,6 +93,7 @@
                                 Data: {
                                     alpha: alpha,
                                     gamma: gamma,
+                                    omega: omega,
                                     colour: colour,
                                     name: name
                                 }
@@ -114,32 +118,36 @@
             },
 
             BettingScene: App => {
-                const bet = App.getElementsByClassName("userInput-betting")[0].value;
-                const horsename = App.getElementsByClassName("horse-names")[0].value;
-                if (bet === '' || horsename === '') {
-                    alert('you have have a blank field')
-                } else {
-                    if (bet > package.Data.balance) {
-                        alert("you have insufficient funds")
+                function submit() {
+                    let bet = App.getElementsByClassName("userInput-betting")[0].value;
+                    bet = parseInt(bet)
+                    const horsename = App.getElementsByClassName("horse-names")[0].value;
+                    if (bet === '' || horsename === '') {
+                        alert('you have have a blank field')
                     } else {
-                        SubmitButton.removeEventListener('click', submit);
-                        const package = {
-                            Type: 'bettinginfo',
-                            Data: {
-                                bet: bet,
-                                horsename: horsename
+                        if (bet > package.Data.balance) {
+                            alert("you have insufficient funds")
+                        } else {
+                            SubmitButton.removeEventListener('click', submit);
+                            const package = {
+                                Type: 'bettinginfo',
+                                Data: {
+                                    bet: bet,
+                                    horsename: horsename
+                                }
                             }
+                            ws.send(JSON.stringify(package))
                         }
-                        ws.send(JSON.stringify(package))
-                        document.dispatchEvent(changeScene);
-                        x = document.getElementsByClassName("horse-name")
-                        let htmlString = ""
-                        for (let i = 0; i < package.Data.horseName; i++) {
-                            htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
-                        }
-                        x.innerHTML = htmlString
                     }
                 }
+                document.dispatchEvent(changeScene);
+                x = document.getElementsByClassName("horse-name")
+                let htmlString = ""
+                for (let i = 0; i < package.Data.horseName; i++) {
+                    htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
+                    x.innerHTML = htmlString
+                }
+
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
 
@@ -222,10 +230,13 @@
     <template id="AIScene">
         <form>
             <p>Customise your AI:</p>
-            <input Type="number" placeholder="Alpha" class="userInput-alpha userprofiling">
+            <input Type="number" placeholder="Alpha (variability 0-1) " class="userInput-alpha userprofiling">
             <br>
             <br>
-            <input Type="number" placeholder="gamma" class="userInput-gamma userprofiling">
+            <input Type="number" placeholder="Gamma (variability over time 0-1)" class="userInput-gamma userprofiling">
+            <br>
+            <br>
+            <input Type="number" placeholder="Omega (chaos variability 0-1) " class="userInput-omega userprofiling">
             <br>
             <br>
             <input Type="color" placeholder="AI Colour" class="userInput-colour userprofiling">
@@ -245,7 +256,7 @@
     <select name="horse-names" class="horse-names">
     </select>
     <br>
-    <input Type="number" placeholder="Betting amount" class="userInput-betting userprofiling">
+    <input Type="number" placeholder="Betting amount (integer)" class="userInput-betting userprofiling">
     <br>
     <button class="submit">Submit</button>
 </template>
