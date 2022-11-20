@@ -25,7 +25,7 @@ struct Bet {
 }
 
 
-pub(crate) fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
+pub fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     let mut r = Ok(());
     HORSES.with(|horses_mutex| {
         let mut horses = match horses_mutex.lock() {
@@ -122,7 +122,7 @@ pub fn name_horses() -> Vec<String> {
             Err(content) => content.into_inner(),
         };
         
-        horses.iter().map(|horse| horse.name).collect::<Vec<String>>()
+        horses.iter().map(|horse| horse.name.to_owned()).collect::<Vec<String>>()
         }
     )
 }
@@ -153,7 +153,7 @@ fn clear_horses() {
 
 /// function to take in total value of bets
 
-fn TakeTotalValue() {
+pub fn TakeTotalValue() {
     HORSES.with(|horses_mutex| {
         let mut horses = match horses_mutex.lock() {
             Ok(content) => content,
@@ -171,7 +171,7 @@ fn TakeTotalValue() {
 
 /// take 15% cut
 
-fn TakeCut(totalForAll: i32) {
+pub fn TakeCut(totalForAll: i32) {
     let cut = 0.15;
 
     let availablePrize = (totalForAll as f32 * (1.0 - cut)).floor() as i32;
@@ -183,7 +183,7 @@ fn TakeCut(totalForAll: i32) {
 /// round down if necessary
 /// convert to fractional odds for display
 
-fn CalcOdds(availablePrize: i32) {
+pub fn CalcOdds(availablePrize: i32) {
     HORSES.with(|horses_mutex| {
         let mut horses = match horses_mutex.lock() {
             Ok(content) => content,
@@ -208,7 +208,7 @@ fn CalcOdds(availablePrize: i32) {
 /// bet * decimal odd for horse + bet
 /// add to user balance
 
-fn Payouts(winner: usize, playerId: String) {
+pub fn Payouts(winner: usize, playerId: String) {
     HORSES.with(|horses_mutex| {
         let mut horses = match horses_mutex.lock() {
             Ok(content) => content,
