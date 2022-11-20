@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 extern crate lazy_static;
 use std::sync::{Arc, Mutex};
-
+use crate::database::{balance_add, balance_sub};
 
 
 struct Bet {
@@ -10,7 +10,7 @@ struct Bet {
     
 }
 
-fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
+async fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     let horses_arc = HORSES.clone();
     let mut horses = match horses_arc.lock() {
         Ok(content) => content,
@@ -20,6 +20,8 @@ fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     let Some(horse) = horses.get_mut(horseId) else {
         return Err(());
     };
+
+    balance_sub(&playerId, betValue).await;
 
     let bet = Bet {
         playerId,
@@ -33,7 +35,7 @@ fn add_bet(playerId: String, horseId: usize, betValue: i32) -> Result<(), ()> {
     //take from user balance 
     // balance - horse.bet.value ???
 
-    balance_sub(playerId, betValue);
+
 
     Ok(())
 }
@@ -48,6 +50,9 @@ struct Horse {
     fractionalOdds: String,
     bets: Vec<Bet>,
     form: Vec<u8>,
+    alpha: f32,
+    gamma: f32,
+    omega: f32
 }
 
 lazy_static! {
@@ -55,12 +60,15 @@ lazy_static! {
     static ref HORSES: Arc<Mutex<Vec<Horse>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
-fn add_horse(
+pub fn add_horse(
     name: String,
     colour: String,
     totalBetsValue: i32,
     decimalOdds: f32,
     fractionalOdds: String,
+    alpha: f32,
+    gamma: f32,
+    omega: f32
 ) {
     let horses_arc = HORSES.clone();
     let mut horses = match horses_arc.lock() {
@@ -74,6 +82,10 @@ fn add_horse(
         decimalOdds,
         fractionalOdds,
         bets: Vec::new(),
+        form: vec![],
+        alpha,
+        gamma,
+        omega
     });
 }
 
@@ -184,7 +196,7 @@ fn CalcOdds(availablePrize : i32)
     }
 }*/
 
-fn Payouts(winner: usize, playerId: String)
+async fn Payouts(winner: usize, playerId: String)
 {
     let horses_arc = HORSES.clone();
     let horses = match horses_arc.lock() {
@@ -202,7 +214,7 @@ fn Payouts(winner: usize, playerId: String)
         let prizeMoney = ((bet.value) as f32 * (horse.decimalOdds + 1.0)) as i32;
 
         //add to balance
-        balance_add(playerId,prizeMoney)
+        balance_add(&playerId,prizeMoney).await
     }
     
 }

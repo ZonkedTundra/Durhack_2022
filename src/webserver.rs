@@ -52,20 +52,20 @@ fn reload() -> Redirect {
 #[handler]
 async fn create_websocket(ws: WebSocket) -> impl IntoResponse {
     ws.on_upgrade(|mut socket| async move {
-            while let Some(Ok(res)) = socket.next().await {
-                            match res {
-                                Message::Text(text) => {
-                                    let st = handle(text);
-                                    println!("{}", st);
-                                    socket.send(Message::Text(st)).await;
-                                }
-                                Message::Binary(_) => {}
-                                Message::Ping(_) => {}
-                                Message::Pong(_) => {}
-                                Message::Close(_) => {}
-                            }
-                        }
-
+        while let Some(Ok(res)) = socket.next().await {
+            match res {
+                Message::Text(text) => {
+                    if let Some(ret) = handle(text).await {
+                        println!("{}", ret);
+                        socket.send(Message::Text(ret)).await;
+                    }
+                }
+                Message::Binary(_) => {}
+                Message::Ping(_) => {}
+                Message::Pong(_) => {}
+                Message::Close(_) => {}
+            }
+        }
     })
 }
 

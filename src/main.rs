@@ -3,7 +3,7 @@ mod database;
 mod simulation;
 mod webserver;
 mod system;
-//mod betting_maths;
+mod betting_maths;
 
 use serde_derive::Deserialize;
 
