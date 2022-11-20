@@ -1,64 +1,26 @@
-use serde::Deserialize;
-use serde_derive::Serialize;
-
-#[derive(Deserialize)]
-struct Top_Layer {
-    Type: String,
-    Data: String
-}
-
-#[derive(Deserialize)]
-struct Data_Rec_Login {
-    token: String
-}
-
-#[derive(Serialize)]
-struct Data_Res_Login {
-    balance: i32,
-    success: bool
-}
-
-#[derive(Deserialize)]
-struct Data_Rec_Newai {
-    alpha: f64,
-    gamma: f64,
-    colour: String,
-    name: String
-}
-
-#[derive(Serialize)]
-struct Data_Res_Airesponse {
-    balance: i32,
-    horsename: Vec<String>,
-    success: bool
-}
-
-#[derive(Deserialize)]
-struct Data_Rec_Betinfo {
-    bet: i32,
-    horsename: String
-}
-
-#[derive(Serialize)]
-struct Data_Res_Race {
-    balance: i32
-}
+use std::borrow::Borrow;
+use std::collections::HashMap;
+use std::iter::Map;
+use bevy::reflect::serde::Serializable::Owned;
+use regex::Regex;
+use serde_derive::{Deserialize, Serialize};
+use serde_json::json;
 
 pub fn handle(text: String) -> String {
-    let json: Top_Layer = serde_json::from_str(&text).unwrap();
-    match json.Type.as_str() {
+    // efficiency is so yesterday
+    let mut json = json::parse(&*text).unwrap();
+    let binding = json["Type"].take();
+    let typ: &str = binding.as_str().unwrap();
+
+    match typ {
         "login" => {
-            let data: Data_Rec_Login = serde_json::from_str(&json.Data).unwrap();
-
-            let obj: Data_Res_Login = Data_Res_Login {
-                balance: 0,
-                success: true
-            };
-
-            return serde_json::to_string(&obj).unwrap();
-        }
-        "login response" => {
-            //let data: Data_Res_Login = serde_json::from_str(&json.Data).unwrap();
+            return json!({
+                "Type": "loginresponse",
+                "Data": {
+                    "balance": 0,
+                    "success": false
+                }
+            }).to_string();
         }
         "newAI" => {
             //let data: Data_Rec_Newai = serde_json::from_str(&json.Data).unwrap();

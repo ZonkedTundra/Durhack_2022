@@ -46,32 +46,27 @@ fn reload() -> Redirect {
         Err(content) => content.into_inner(),
     };
     *webpage = fs::read_to_string(WEBPAGE_PATH).expect("Failed to read file.");
-
+    drop(webpage);
     Redirect::see_other("/")
 }
 
 #[handler]
 async fn create_websocket(ws: WebSocket) -> impl IntoResponse {
     ws.on_upgrade(|mut socket| async move {
-        loop {
-            if let Some(res) = socket.next().await {
-                match res {
-                    Ok(ok) => {
-                        // aaaaaaaaaa
-                        match ok {
-                            Message::Text(text) => {socket.send(Message::Text(handle(text)));}
-                            Message::Binary(_) => {}
-                            Message::Ping(_) => {}
-                            Message::Pong(_) => {}
-                            Message::Close(_) => {}
+            while let Some(Ok(res)) = socket.next().await {
+                            match res {
+                                Message::Text(text) => {
+                                    let st = handle(text);
+                                    println!("{}", st);
+                                    socket.send(Message::Text(st)).await;
+                                }
+                                Message::Binary(_) => {}
+                                Message::Ping(_) => {}
+                                Message::Pong(_) => {}
+                                Message::Close(_) => {}
+                            }
                         }
-                    }
-                    Err(err) => {
-                        return err
-                    }
-                }
-            }
-        }
+
     })
 }
 
