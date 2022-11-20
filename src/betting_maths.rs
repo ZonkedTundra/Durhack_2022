@@ -199,7 +199,7 @@ fn Payouts(winner: usize)
     
     for bet in horse.bets.iter()
     {
-        let prizeMoney = (bet.value) as f32 * (horse.decimalOdds + 1.0);
+        let prizeMoney = ((bet.value) as f32 * (horse.decimalOdds + 1.0)) as i32;
 
         //add to balance
         balance_add(playerId,prizeMoney)
