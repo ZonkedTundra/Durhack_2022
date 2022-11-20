@@ -36,7 +36,13 @@
 
     <script>
         let App = undefined;
-        let scene = 'BettingScene';
+        let scene = 'LoginScene';
+        //LoginScene
+        //AIScene
+        //BettingScene
+        //RaceScene
+        //AdminScene
+        //LiveBettingScene
 
         const changeScene = new CustomEvent("change-scene");
         document.addEventListener('change-scene', () => {
@@ -53,12 +59,17 @@
             LoginScene: App => {
                 function submit() {
                     const token = App.getElementsByClassName("userInput-token")[0].value;
+                    if (token === 'admin22') {
+                        scene = "AdminScene"
+                        document.dispatchEvent(changeScene);
+                    }
                     if (token === '') {
                         alert('The enter field is blank')
                     } else {
                         SubmitButton.removeEventListener('click', submit);
                         const package = {
                             Type: 'login',
+                            token: token,
                             Data: {
                                 token: token
                             }
@@ -72,6 +83,7 @@
             },
             AIScene: App => {
                 function submit() {
+                    const token = package.Token
                     const alpha = App.getElementsByClassName("userInput-alpha")[0].value;
                     const gamma = App.getElementsByClassName("userInput-gamma")[0].value;
                     const omega = App.getElementsByClassName("userInput-omega")[0].value;
@@ -90,6 +102,7 @@
                             SubmitButton.removeEventListener('click', submit);
                             const package = {
                                 Type: 'newAI',
+                                token: token,
                                 Data: {
                                     alpha: alpha,
                                     gamma: gamma,
@@ -103,9 +116,11 @@
                     }
                 }
                 function skip() {
+                    const token = package.Token
                     SubmitButton.removeEventListener('click', skip);
                     const package = {
                         Type: 'requestbetting',
+                        token: token,
                         Data: {}
                     }
                     ws.send(JSON.stringify(package))
@@ -122,6 +137,7 @@
                     let bet = App.getElementsByClassName("userInput-betting")[0].value;
                     bet = parseInt(bet)
                     const horsename = App.getElementsByClassName("horse-names")[0].value;
+                    const token = package.Token
                     if (bet === '' || horsename === '') {
                         alert('you have have a blank field')
                     } else {
@@ -131,6 +147,7 @@
                             SubmitButton.removeEventListener('click', submit);
                             const package = {
                                 Type: 'bettinginfo',
+                                token: token,
                                 Data: {
                                     bet: bet,
                                     horsename: horsename
@@ -151,6 +168,35 @@
                 const SubmitButton = App.getElementsByClassName('submit')[0];
                 SubmitButton.addEventListener('click', submit);
 
+            },
+
+            AdminScene: App => {
+                function submit() {
+                    const token = package.Token
+                    SubmitButton.removeEventListener('click', submit);
+                    const package = {
+                        Type: 'newtoken',
+                        token: token,
+                        Data: {}
+                    }
+                    ws.send(JSON.stringify(package))
+                }
+                function livebetting(){
+                    const token = package.Token
+                    SubmitButton.removeEventListener('click', submit);
+                    const package = {
+                        Type: 'livebets',
+                        token: token,
+                        Data: {}
+                    }
+                    scene = "LiveBettingScene"
+                        document.dispatchEvent(changeScene);
+                }
+                const SubmitButton = App.getElementsByClassName('submit')[0];
+                SubmitButton.addEventListener('click', submit);
+
+                const bettingButton = App.getElementsByClassName('livebetting')[0];
+                SubmitButton.addEventListener('click', livebetting);
             }
         }
         let loc = window.location, new_uri; if (loc.protocol === "https:") { new_uri = "wss:"; } else { new_uri = "ws:"; } new_uri += "//" + loc.host; new_uri += loc.pathname + "ws";
@@ -179,7 +225,7 @@
                 if (package.Data.success) {
                     scene = "BettingScene"
                     document.dispatchEvent(changeScene);
-                    x = document.getElementsByClassName("horse-name")
+                    x = document.getElementsByClassName("horse-name")[0]
                     let htmlString = ""
                     for (let i = 0; i < package.Data.horseName; i++) {
                         htmlString += `<option value=${package.Data.horseName[i]}>${package.Data.horseName[i]}</option>`
@@ -201,6 +247,22 @@
                 x = document.getElementsByClassName("balance-footer")
                 let balanceString = `Balance: ${package.Data.balance}`
                 x.innerHTML = balanceString
+            }
+            if (package.Type === "bettingodd") {
+                //will recieve Type, Token, Data(horsename(list), liveodds(list), form(list))
+                scene = "LiveBettingScene"
+                document.dispatchEvent(changeScene);
+                x = document.getElementsByClassName("betting")[0]
+                for (let i = 0; i < package.Data.horseName; i++) {
+                    y = document.createElement("dt")
+                    z = document.createElement("dd")
+                    a = document.createElement("dd")
+                    y.innerString = "Name: " + package.Data.horsename[i]
+                    z.innerstring = "Form: " + package.Data.form[i]
+                    a.innerstring = "Odd: " + package.Data.liveodds[i]
+                    x.appendChild(y, z, a)
+                }
+                x.innerHTML = htmlString
             }
         }
 
@@ -263,6 +325,16 @@
 
 <template id="RaceScene">
     <p>Enjoy the race :)</p>
+</template>
+
+<template id="AdminScene">
+    <button class="submit">new token</button>
+    <button class="livebetting">betting page</button>
+</template>
+
+<template id="LiveBettingScene">
+    <dl class="betting">
+    </dl>
 </template>
 
 </html>
